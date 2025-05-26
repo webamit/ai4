@@ -12,111 +12,74 @@ export default function Settings() {
         <TemplateCard
           link="/essay"
           illustration="📝"
-          name="Write an Essay"
-          description="Generate an Essay based on a type, subject and number of paragraphs."
+          name="Business Plan"
+          description="Classic full plan with exec summary, market analysis, financials"
         />
+
         <TemplateCard
           link="/simplifier"
-          illustration="👶"
-          name="Content Simplifier"
-          description="Summarize text content for all age types of audience."
+          illustration="📈"
+          name="Marketing Plan"
+          description="Step-by-step GTM strategy, audience targeting, and channels"
         />
+
         <TemplateCard
           link="/product-description"
-          illustration="🎯"
-          name="Product Description"
-          description="Generate compelling & high converting descriptions for product listings."
+          illustration="💰"
+          name="Financial Forecast"
+          description="1–3 year projections with revenue, cost, profit, and breakeven"
         />
+
         <TemplateCard
           link="/email-enhancer"
-          illustration="📧"
-          name="Email Enhancer"
-          description="Generate an incredibly clickable email from text content."
+          illustration="🚀"
+          name="Pitch Deck Slides"
+          description="Custom slide content for investor presentations"
         />
+
         <TemplateCard
           link="/linkedin-message"
-          illustration="💬"
-          name="LinkedIn Message"
-          description="Generate a LinkedIn high-converting message based on a type or subject."
+          illustration="🧾"
+          name="Operating Agreement"
+          description="AI-generated draft based on entity structure and ownership split"
         />
+
         <TemplateCard
           link="/caption"
-          illustration="🌄"
-          name="Instagram Caption"
-          description="Generate a compelling and engaging caption for an Instagram post."
+          illustration="👥"
+          name="Org Chart Builder"
+          description="Simple tool that builds a visual org chart based on team input"
         />
+
         <TemplateCard
           link="/faq"
-          illustration="❓"
-          name="FAQs Content"
-          description="Generate FAQs for a product, web app, or landing pages."
+          illustration="📋"
+          name="Hiring Plan"
+          description="Suggested roles, job descriptions, salaries, and hiring timelines"
         />
+
         <TemplateCard
           link="/name-generator"
-          illustration="🏷️"
-          name="Product Name Generator"
-          description="Generate product names from example words, topics, or work industries."
+          illustration="🔐"
+          name="NDA / Contract"
+          description="Simple AI-assisted contract generator for basic business use"
         />
-        <TemplateCard
-          link="/seo-keywords"
-          illustration="📈"
-          name="SEO Keywords"
-          description="Generate high-converting SEO keywords from a subject, name, and so on."
-        />
+
         <TemplateCard
           link="/review-responder"
-          illustration="🌟"
-          name="Review Responder"
-          description="Generate an accurate & friendly response based on a customer review."
+          illustration="📊"
+          name="Competitive Analysis"
+          description="Table/grid + narrative based on known or submitted competitors"
         />
+
         <TemplateCard
           link="/business-generator"
-          illustration="💡"
-          name="Business Idea Generator"
-          description="Generate some business ideas based on topics, preferences, or budgets."
+          illustration="💼"
+          name="Grant Application"
+          description="Narrative, budget, and checklist for applying to common business grants"
         />
-        <TemplateCard
-          link="/article"
-          illustration="📄"
-          name="Article Generator"
-          description="Generate incredibly clickable and SEO Friendly article content."
-        />
-        <TemplateCard
-          link="/plagiarism-checker"
-          illustration="©️"
-          name="Plagiarism Checker"
-          description="Plagiarism checker for sentences and content."
-        />
-        <TemplateCard
-          link="/hashtags-generator"
-          illustration="#️⃣"
-          name="Hashtags Generator"
-          description="Generate outstanding hashtags for Instagram and social media."
-        />
-        <TemplateCard
-          link="/pet-name-generator"
-          illustration="🐶"
-          name="Pet Name Generator"
-          description="Generate a great name for your pet."
-        />
-        <TemplateCard
-          link="/translator"
-          illustration="🈳"
-          name="Content Translator"
-          description="Translate any type of content into your favorite language."
-        />
-        <TemplateCard
-          link="/domain-name-generator"
-          illustration="🔗"
-          name="Domain Name Generator"
-          description="Generate great domain names for your businesses."
-        />
-        <TemplateCard
-          link="/bootstrap-to-tailwind-converter"
-          illustration="💻"
-          name="Bootstrap to Tailwind Converter"
-          description="Convert any Bootstrap code to Tailwind CSS."
-        />
+
+
       </SimpleGrid>
     </Box>
   );

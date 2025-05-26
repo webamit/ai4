@@ -5,64 +5,47 @@ import Link from '@/components/link/Link';
 import MessageBoxChat from '@/components/MessageBoxChat';
 import { ChatBody, OpenAIModel } from '@/types/types';
 import {
-  Accordion,
-  AccordionButton,
-  AccordionIcon,
-  AccordionItem,
-  AccordionPanel,
   Box,
   Button,
   Flex,
   Icon,
-  Image,
-  Img,
   Input,
   Text,
   useColorModeValue,
+  Image,
 } from '@chakra-ui/react';
-import { useEffect, useState } from 'react';
-import { MdAutoAwesome, MdBolt, MdEdit, MdPerson } from 'react-icons/md';
+import { useState } from 'react';
+import { MdAutoAwesome, MdPerson } from 'react-icons/md';
 import Bg from '../../public/img/chat/bg-image.png';
 
 export default function Chat() {
-  // *** If you use .env.local variable for your API key, method which we recommend, use the apiKey variable commented below
   // Input States
   const [inputOnSubmit, setInputOnSubmit] = useState<string>('');
   const [inputCode, setInputCode] = useState<string>('');
   // Response message
   const [outputCode, setOutputCode] = useState<string>('');
-  // ChatGPT model
-  const [model, setModel] = useState<OpenAIModel>('gpt-3.5-turbo');
+  // ChatGPT model set to GPT-4
+  const [model] = useState<OpenAIModel>('gpt-4-1106-preview');
   // Loading state
   const [loading, setLoading] = useState<boolean>(false);
+  // Conversation history
+  const [conversationHistory, setConversationHistory] = useState<any[]>([]);
 
-  // API Key
-  // const [apiKey, setApiKey] = useState<string>(apiKeyApp);
   const borderColor = useColorModeValue('gray.200', 'whiteAlpha.200');
   const inputColor = useColorModeValue('navy.700', 'white');
-  const iconColor = useColorModeValue('brand.500', 'white');
-  const bgIcon = useColorModeValue(
-    'linear-gradient(180deg, #FBFBFF 0%, #CACAFF 100%)',
-    'whiteAlpha.200',
-  );
-  const brandColor = useColorModeValue('brand.500', 'white');
-  const buttonBg = useColorModeValue('white', 'whiteAlpha.100');
   const gray = useColorModeValue('gray.500', 'white');
-  const buttonShadow = useColorModeValue(
-    '14px 27px 45px rgba(112, 144, 176, 0.2)',
-    'none',
-  );
   const textColor = useColorModeValue('navy.700', 'white');
   const placeholderColor = useColorModeValue(
     { color: 'gray.500' },
     { color: 'whiteAlpha.600' },
   );
+
   const handleTranslate = async () => {
     let apiKey = localStorage.getItem('apiKey');
     setInputOnSubmit(inputCode);
 
-    // Chat post conditions(maximum number of characters, valid message etc.)
-    const maxCodeLength = model === 'gpt-3.5-turbo' ? 700 : 700;
+    // Chat post conditions (maximum number of characters, valid message etc.)
+    const maxCodeLength = 700;
 
     if (!apiKey?.includes('sk-')) {
       alert('Please enter an API key.');
@@ -80,19 +63,18 @@ export default function Chat() {
       );
       return;
     }
+
     setOutputCode(' ');
     setLoading(true);
     const controller = new AbortController();
     const body: ChatBody = {
       inputCode,
       model,
-      // *** Initializing apiKey with .env.local/ .env value :
-      // just remove the `apiKey` variable below
       apiKey,
     };
 
     // -------------- Fetch --------------
-    const response =  await fetch('/api/chatAPI', {
+    const response = await fetch('/api/chatAPI', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -103,11 +85,9 @@ export default function Chat() {
 
     if (!response.ok) {
       setLoading(false);
-      if (response) {
-        alert(
-          'Something went wrong went fetching from the API. Make sure to use a valid API key.',
-        );
-      }
+      alert(
+        'Something went wrong fetching from the API. Make sure to use a valid API key.',
+      );
       return;
     }
 
@@ -123,28 +103,37 @@ export default function Chat() {
     const decoder = new TextDecoder();
     let done = false;
 
+    let responseText = '';
+
     while (!done) {
       setLoading(true);
       const { value, done: doneReading } = await reader.read();
       done = doneReading;
       const chunkValue = decoder.decode(value);
-      setOutputCode((prevCode) => prevCode + chunkValue);
+      responseText += chunkValue;
     }
 
     setLoading(false);
+    setOutputCode(responseText);
+
+    // Ensure the first response shows correctly
+    setConversationHistory((prevHistory) => [
+      ...prevHistory,
+      { user: inputCode, bot: responseText },
+    ]);
+
+    // Clear the input field after submitting
+    setInputCode('');
   };
-  // -------------- Copy Response --------------
-  // const copyToClipboard = (text: string) => {
-  //   const el = document.createElement('textarea');
-  //   el.value = text;
-  //   document.body.appendChild(el);
-  //   el.select();
-  //   document.execCommand('copy');
-  //   document.body.removeChild(el);
-  // };
 
   const handleChange = (Event: any) => {
     setInputCode(Event.target.value);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleTranslate();
+    }
   };
 
   return (
@@ -153,8 +142,11 @@ export default function Chat() {
       pt={{ base: '70px', md: '0px' }}
       direction="column"
       position="relative"
+      align="center"
+      justify="center"
+      minH="100vh"
     >
-      <Img
+      <Image
         src={Bg.src}
         position={'absolute'}
         w="350px"
@@ -166,234 +158,145 @@ export default function Chat() {
         direction="column"
         mx="auto"
         w={{ base: '100%', md: '100%', xl: '100%' }}
-        minH={{ base: '75vh', '2xl': '85vh' }}
+        minH="75vh"
         maxW="1000px"
+        overflow="auto"
+        pb="20px"
       >
-        {/* Model Change */}
-        <Flex direction={'column'} w="100%" mb={outputCode ? '20px' : 'auto'}>
-          <Flex
-            mx="auto"
-            zIndex="2"
-            w="max-content"
-            mb="20px"
-            borderRadius="60px"
-          >
-            <Flex
-              cursor={'pointer'}
-              transition="0.3s"
-              justify={'center'}
-              align="center"
-              bg={model === 'gpt-3.5-turbo' ? buttonBg : 'transparent'}
-              w="174px"
-              h="70px"
-              boxShadow={model === 'gpt-3.5-turbo' ? buttonShadow : 'none'}
-              borderRadius="14px"
-              color={textColor}
-              fontSize="18px"
-              fontWeight={'700'}
-              onClick={() => setModel('gpt-3.5-turbo')}
-            >
-              <Flex
-                borderRadius="full"
-                justify="center"
-                align="center"
-                bg={bgIcon}
-                me="10px"
-                h="39px"
-                w="39px"
-              >
-                <Icon
-                  as={MdAutoAwesome}
-                  width="20px"
-                  height="20px"
-                  color={iconColor}
-                />
-              </Flex>
-              GPT-3.5
-            </Flex>
-            <Flex
-              cursor={'pointer'}
-              transition="0.3s"
-              justify={'center'}
-              align="center"
-              bg={model === 'gpt-4-1106-preview' ? buttonBg : 'transparent'}
-              w="164px"
-              h="70px"
-              boxShadow={model === 'gpt-4-1106-preview' ? buttonShadow : 'none'}
-              borderRadius="14px"
-              color={textColor}
-              fontSize="18px"
-              fontWeight={'700'}
-              onClick={() => setModel('gpt-4-1106-preview')}
-            >
-              <Flex
-                borderRadius="full"
-                justify="center"
-                align="center"
-                bg={bgIcon}
-                me="10px"
-                h="39px"
-                w="39px"
-              >
-                <Icon
-                  as={MdBolt}
-                  width="20px"
-                  height="20px"
-                  color={iconColor}
-                />
-              </Flex>
-              GPT-4
-            </Flex>
-          </Flex>
-
-          <Accordion color={gray} allowToggle w="100%" my="0px" mx="auto">
-            <AccordionItem border="none">
-              <AccordionButton
-                borderBottom="0px solid"
-                maxW="max-content"
-                mx="auto"
-                _hover={{ border: '0px solid', bg: 'none' }}
-                _focus={{ border: '0px solid', bg: 'none' }}
-              >
-                <Box flex="1" textAlign="left">
-                  <Text color={gray} fontWeight="500" fontSize="sm">
-                    No plugins added
-                  </Text>
-                </Box>
-                <AccordionIcon color={gray} />
-              </AccordionButton>
-              <AccordionPanel mx="auto" w="max-content" p="0px 0px 10px 0px">
-                <Text
-                  color={gray}
-                  fontWeight="500"
-                  fontSize="sm"
-                  textAlign={'center'}
-                >
-                  This is a cool text example.
-                </Text>
-              </AccordionPanel>
-            </AccordionItem>
-          </Accordion>
-        </Flex>
-        {/* Main Box */}
+        {/* Chat Conversation */}
         <Flex
           direction="column"
           w="100%"
           mx="auto"
-          display={outputCode ? 'flex' : 'none'}
-          mb={'auto'}
+          mb="auto"
+          maxH="70vh"
+          overflowY="scroll"
         >
-          <Flex w="100%" align={'center'} mb="10px">
-            <Flex
-              borderRadius="full"
-              justify="center"
-              align="center"
-              bg={'transparent'}
-              border="1px solid"
-              borderColor={borderColor}
-              me="20px"
-              h="40px"
-              minH="40px"
-              minW="40px"
-            >
-              <Icon
-                as={MdPerson}
-                width="20px"
-                height="20px"
-                color={brandColor}
-              />
-            </Flex>
-            <Flex
-              p="22px"
-              border="1px solid"
-              borderColor={borderColor}
-              borderRadius="14px"
-              w="100%"
-              zIndex={'2'}
-            >
-              <Text
-                color={textColor}
-                fontWeight="600"
-                fontSize={{ base: 'sm', md: 'md' }}
-                lineHeight={{ base: '24px', md: '26px' }}
-              >
-                {inputOnSubmit}
-              </Text>
-              <Icon
-                cursor="pointer"
-                as={MdEdit}
-                ms="auto"
-                width="20px"
-                height="20px"
-                color={gray}
-              />
-            </Flex>
-          </Flex>
-          <Flex w="100%">
-            <Flex
-              borderRadius="full"
-              justify="center"
-              align="center"
-              bg={'linear-gradient(15.46deg, #4A25E1 26.3%, #7B5AFF 86.4%)'}
-              me="20px"
-              h="40px"
-              minH="40px"
-              minW="40px"
-            >
-              <Icon
-                as={MdAutoAwesome}
-                width="20px"
-                height="20px"
-                color="white"
-              />
-            </Flex>
-            <MessageBoxChat output={outputCode} />
-          </Flex>
+          {conversationHistory.map((conversation, index) => (
+            <div key={index}>
+              <Flex w="100%" align={'center'} mb="10px">
+                <Flex
+                  borderRadius="full"
+                  justify="center"
+                  align="center"
+                  bg={'transparent'}
+                  border="none"
+                  me="20px"
+                  h="40px"
+                  minH="40px"
+                  minW="40px"
+                >
+                  <Icon
+                    as={MdPerson}
+                    width="20px"
+                    height="20px"
+                    color={textColor}
+                  />
+                </Flex>
+                <Flex
+                  p="22px"
+                  border="none"
+                  borderRadius="14px"
+                  w="100%"
+                  bg="transparent"
+                  zIndex={'2'}
+                >
+                  <Text
+                    color={textColor}
+                    fontWeight="600"
+                    fontSize={{ base: 'sm', md: 'md' }}
+                    lineHeight={{ base: '24px', md: '26px' }}
+                  >
+                    {conversation.user}
+                  </Text>
+                </Flex>
+              </Flex>
+
+              <Flex w="100%">
+                <Flex
+                  borderRadius="full"
+                  justify="center"
+                  align="center"
+                  bg={'linear-gradient(15.46deg, #4A25E1 26.3%, #7B5AFF 86.4%)'}
+                  me="20px"
+                  h="40px"
+                  minH="40px"
+                  minW="40px"
+                >
+                  <Icon
+                    as={MdAutoAwesome}
+                    width="20px"
+                    height="20px"
+                    color="white"
+                  />
+                </Flex>
+                <MessageBoxChat
+                  output={conversation.bot}
+                  height="auto" // Allow the box height to auto-expand
+                  minHeight="200px" // Ensures the box is at least 200px
+                  border="none" // Removed border from the response box
+                  bg="transparent" // Removed background
+                />
+              </Flex>
+            </div>
+          ))}
         </Flex>
-        {/* Chat Input */}
+
+        {/* Chat Input Field */}
         <Flex
-          ms={{ base: '0px', xl: '60px' }}
-          mt="20px"
-          justifySelf={'flex-end'}
+          direction="column"
+          mx="auto"
+          w="100%"
+          align="center"
+          mb={conversationHistory.length > 0 ? '20px' : 'auto'}
         >
-          <Input
-            minH="54px"
-            h="100%"
-            border="1px solid"
-            borderColor={borderColor}
-            borderRadius="45px"
-            p="15px 20px"
-            me="10px"
-            fontSize="sm"
-            fontWeight="500"
-            _focus={{ borderColor: 'none' }}
-            color={inputColor}
-            _placeholder={placeholderColor}
-            placeholder="Type your message here..."
-            onChange={handleChange}
-          />
-          <Button
-            variant="primary"
-            py="20px"
-            px="16px"
-            fontSize="sm"
-            borderRadius="45px"
-            ms="auto"
-            w={{ base: '160px', md: '210px' }}
-            h="54px"
-            _hover={{
-              boxShadow:
-                '0px 21px 27px -10px rgba(96, 60, 255, 0.48) !important',
-              bg: 'linear-gradient(15.46deg, #4A25E1 26.3%, #7B5AFF 86.4%) !important',
-              _disabled: {
+          <Text fontSize="2xl" color={textColor} fontWeight="700">
+            Hello Jemell, Ready to grow your business?
+          </Text>
+          <Flex mt="20px" w="100%" align="center" justify="center">
+            <Input
+              minH="120px" // Adjusted height for input field (similar to ChatGPT's input box)
+              w="100%"
+              border="2px solid"
+              borderColor={useColorModeValue('#dcdcdc', '#3e3e3e')} // Light border for the input field
+              borderRadius="15px" // Rounded corners for the input box
+              p="20px" // Extra padding for a modern look
+              me="10px"
+              fontSize="sm"
+              fontWeight="500"
+              color={inputColor}
+              _placeholder={placeholderColor}
+              placeholder="Type your message here..."
+              value={inputCode}
+              onChange={handleChange}
+              onKeyDown={handleKeyPress}
+              _hover={{
+                borderColor: '#9b9b9b', // Hover effect on input
+              }}
+              _focus={{
+                borderColor: '#6c6c6c', // Focused input border
+              }}
+            />
+            <Button
+              variant="primary"
+              py="20px"
+              px="16px"
+              fontSize="sm"
+              borderRadius="45px"
+              ms="auto"
+              w={{ base: '160px', md: '210px' }}
+              h="54px"
+              bg="linear-gradient(15.46deg, #4A25E1 26.3%, #7B5AFF 86.4%)"
+              _hover={{
+                boxShadow: 'none',
                 bg: 'linear-gradient(15.46deg, #4A25E1 26.3%, #7B5AFF 86.4%)',
-              },
-            }}
-            onClick={handleTranslate}
-            isLoading={loading ? true : false}
-          >
-            Submit
-          </Button>
+              }}
+              onClick={handleTranslate}
+              isLoading={loading ? true : false}
+            >
+              Submit
+            </Button>
+          </Flex>
         </Flex>
 
         <Flex
