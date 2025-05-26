@@ -12,11 +12,9 @@ import {
   Input,
   Text,
   useColorModeValue,
-  Image,
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import { MdAutoAwesome, MdPerson } from 'react-icons/md';
-import Bg from '../../public/img/chat/bg-image.png';
 
 export default function Chat() {
   // Input States
@@ -146,14 +144,8 @@ export default function Chat() {
       justify="center"
       minH="100vh"
     >
-      <Image
-        src={Bg.src}
-        position={'absolute'}
-        w="350px"
-        left="50%"
-        top="50%"
-        transform={'translate(-50%, -50%)'}
-      />
+      {/* Background image removed */}
+
       <Flex
         direction="column"
         mx="auto"
@@ -297,28 +289,6 @@ export default function Chat() {
               Submit
             </Button>
           </Flex>
-        </Flex>
-
-        <Flex
-          justify="center"
-          mt="20px"
-          direction={{ base: 'column', md: 'row' }}
-          alignItems="center"
-        >
-          <Text fontSize="xs" textAlign="center" color={gray}>
-            Free Research Preview. ChatGPT may produce inaccurate information
-            about people, places, or facts.
-          </Text>
-          <Link href="https://help.openai.com/en/articles/6825453-chatgpt-release-notes">
-            <Text
-              fontSize="xs"
-              color={textColor}
-              fontWeight="500"
-              textDecoration="underline"
-            >
-              ChatGPT May 12 Version
-            </Text>
-          </Link>
         </Flex>
       </Flex>
     </Flex>
